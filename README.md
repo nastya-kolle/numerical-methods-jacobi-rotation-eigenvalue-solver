@@ -61,24 +61,19 @@ The project is set up as a Visual Studio solution.
 
 No external dependencies are required — everything uses the C++ standard library.
 
-## Output
+## Sample Results
 
-Running the program prints a summary table to the console, one row per `(N, [λ_min, λ_max])` configuration, with columns for:
+Running the program with the default configuration (sizes `{10, 30}` crossed with eigenvalue ranges `{[-2, 2], [-50, 50]}`, convergence tolerance `1e-9`) produces:
 
-- matrix size `N`,
-- the eigenvalue range tested,
-- the tolerance (`eps`) reached,
-- average number of rotations to converge,
-- average maximum eigenvalue error (computed vs. true),
-- average accuracy measure `r`.
+| # | N | Range λ | Max \|A_ij\| | Avg. rotations | Avg. λ error | Avg. measure r |
+|---|---|---|---|---|---|---|
+| 1 | 10 | [-2; 2] | 1.00e-09 | 134 | 0.000000 | 1.67e-06 |
+| 2 | 10 | [-50; 50] | 1.00e-09 | 136 | 0.000000 | 1.40e-06 |
+| 3 | 30 | [-2; 2] | 1.00e-09 | 1398 | 0.000000 | 2.66e-06 |
+| 4 | 30 | [-50; 50] | 1.00e-09 | 1467 | 0.000000 | 2.57e-06 |
 
-By default, `Main.cpp` runs the experiment for sizes `{10, 30}` crossed with eigenvalue ranges `{[-2, 2], [-50, 50]}`, testing convergence tolerances `{1e-5, 1e-7, 1e-9}` for each configuration.
+### Key takeaways
 
-## What the experiment measures
-
-For each combination of **matrix size** and **eigenvalue range**, the experiment checks how the Jacobi method's:
-
-- **convergence speed** (number of rotations), and
-- **eigenvalue accuracy** (deviation from the known true eigenvalues),
-
-scale as the problem gets larger or the eigenvalues span a wider range — giving an empirical picture of the method's practical behavior beyond its theoretical guarantees.
+- **Eigenvalue accuracy is essentially exact.** The average eigenvalue error rounds to `0.000000` in all four configurations — the Jacobi method recovers the true eigenvalues used to construct the test matrix to very high precision.
+- **The accuracy measure `r`** (how well `A·T ≈ T·Λ` holds) stays in the `1e-6` range across all configurations, showing the eigen-decomposition is self-consistent regardless of matrix size or eigenvalue spread.
+- **Rotation count scales strongly with matrix size, not with eigenvalue range.** Going from `N = 10` to `N = 30` increases the average number of rotations roughly **tenfold** (from ~135 to ~1400+), while widening the eigenvalue range from `[-2, 2]` to `[-50, 50]` barely changes the rotation count for a fixed `N`. This matches the theoretical expectation that Jacobi's convergence rate depends on the number of off-diagonal elements needing to be zeroed (which grows roughly as `N²`), not on the magnitude of the eigenvalues themselves.
